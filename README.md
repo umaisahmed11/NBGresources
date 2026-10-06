@@ -22,7 +22,7 @@ technically precise.
 ## Getting Started
 
 ```bash
-npm install
+npm ci
 cp .env.example .env.local   # then edit values
 npm run dev                  # http://localhost:3000
 ```
@@ -32,9 +32,9 @@ npm run dev                  # http://localhost:3000
 | Script          | Description                     |
 | --------------- | ------------------------------- |
 | `npm run dev`   | Start the dev server            |
-| `npm run build` | Production build                |
+| `npm run build` | Oxlint, TypeScript, then production build |
 | `npm run start` | Serve the production build      |
-| `npm run lint`  | ESLint (next/core-web-vitals)   |
+| `npm run lint`  | Oxlint; warnings fail the check |
 
 ## Project Structure
 
@@ -74,3 +74,14 @@ Compatible with Vercel. Set `NEXT_PUBLIC_SITE_URL` and any future integration
 secrets as environment variables. Note the local filesystem `uploads/`
 directory is for development; use private object storage (signed URLs) in
 production (spec §56).
+
+### Runtime and quality checks
+
+Use Node.js **22.23.3** (also pinned in `.nvmrc`) for development, CI, and deployment. The manifest requires a compatible patched Node 22 runtime. If your system uses an older Node version, switch runtimes before running `npm ci`.
+
+- `npm run lint`: native Oxlint rules migrated from the Next.js ESLint presets, with zero warnings allowed.
+- `npm run typecheck`: TypeScript compiler checks.
+- `npm run build`: runs both checks before Next.js. Hosting must use this command, not `next build` directly.
+- `npm audit` and `npm audit --omit=dev`: development and production dependency advisory checks.
+
+See [SECURITY-MIGRATION.md](./SECURITY-MIGRATION.md) for the migration scope and lint coverage differences.

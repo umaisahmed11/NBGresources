@@ -3,6 +3,8 @@ import path from "node:path";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // npm run build runs Oxlint and TypeScript before Next.js.
+  eslint: { ignoreDuringBuilds: true },
   // Pin the workspace root (a stray parent lockfile otherwise misleads Next).
   outputFileTracingRoot: path.join(__dirname),
   images: {
