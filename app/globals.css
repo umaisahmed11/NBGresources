@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+/*
+  Aero Titanium design system.
+  Token values follow section 69 of the specification.
+*/
+
+@theme {
+  /* Dark palette */
+  --color-carbon: #080a0d;
+  --color-graphite: #11161d;
+  --color-titanium: #1a2028;
+  --color-metal: #303843;
+  --color-slate: #66717d;
+
+  /* Light palette */
+  --color-arctic: #f5f7f9;
+  --color-frost: #f9fbfc;
+  --color-silver: #dce2e7;
+  --color-steel: #626d78;
+
+  /* Text */
+  --color-text-dark: #111318;
+  --color-text-light: #f6f8fa;
+  --color-text-muted-dark: #929ba6;
+  --color-text-muted-light: #626d78;
+
+  /* Accent */
+  --color-glacier: #72b9d6;
+  --color-ice: #b7e3f3;
+  --color-deepice: #397a99;
+  --color-aog: #d9a65a;
+
+  /* Custom-cursor accent — warm orange, complementary to the cool palette so it
+     stays visible on every section. Kept distinct from the reserved AOG amber
+     (#D9A65A) to avoid semantic confusion. Change this one value to recolour. */
+  --color-cursor: #fb7a34;
+
+  /* Radius */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  /* Fonts (wired to next/font variables in layout) */
+  --font-display: var(--font-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Easing */
+  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Layout */
+  --content-max: 1520px;
+  --content-standard: 1360px;
+}
+
+:root {
+  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* {
+  border-color: var(--color-metal);
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: var(--color-carbon);
+  color: var(--color-text-light);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* Lenis smooth scroll */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Selection */
+::selection {
+  background: var(--color-glacier);
+  color: var(--color-carbon);
+}
+
+/* Focus visibility (accessibility, section 49) */
+:focus-visible {
+  outline: 2px solid var(--color-glacier);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Ambient grain — extremely low opacity (section 68) */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Utility: technical label */
+.tech-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Custom cursor: hide native when active */
+body.custom-cursor-active,
+body.custom-cursor-active * {
+  cursor: none !important;
+}
+
+/* Reduced motion: strip transitions/animations (section 19) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Hairline divider marker */
+.hairline {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.hairline-light {
+  height: 1px;
+  background: var(--color-silver);
+}

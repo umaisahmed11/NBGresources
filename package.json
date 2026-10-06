@@ -1,0 +1,42 @@
+{
+  "name": "aero-titanium-aviation",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^15.5.25",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "motion": "^12.23.12",
+    "lenis": "^1.3.11",
+    "gsap": "^3.13.0",
+    "lucide-react": "^0.544.0",
+    "zod": "^4.1.5",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.3.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "@types/node": "^24.3.0",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "tailwindcss": "^4.1.13",
+    "@tailwindcss/postcss": "^4.1.13",
+    "postcss": "^8.5.28",
+    "eslint": "^9.35.0",
+    "eslint-config-next": "^15.5.25",
+    "@eslint/eslintrc": "^3.3.1"
+  },
+  "comments": {
+    "overrides": "Force transitive deps onto patched versions to clear known advisories (postcss <=8.5.22, sharp <0.35.0) without a breaking Next.js major upgrade."
+  },
+  "overrides": {
+    "postcss": "^8.5.28",
+    "sharp": "^0.35.4"
+  }
+}
