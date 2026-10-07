@@ -84,3 +84,5 @@ Use Node.js **22.23.3** (also pinned in `.nvmrc`) for development, CI, and deplo
 - `npm audit` and `npm audit --omit=dev`: development and production dependency advisory checks.
 
 See [SECURITY-MIGRATION.md](./SECURITY-MIGRATION.md) for the migration scope and lint coverage differences.
+
+The typecheck command clears stale generated route types in .next/types, regenerates them with Next.js, then runs TypeScript. This prevents cached types for removed pages from breaking deployment. Use npm run build as the deployment build command.
