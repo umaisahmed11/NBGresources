@@ -31,10 +31,9 @@
   --color-deepice: #397a99;
   --color-aog: #d9a65a;
 
-  /* Custom-cursor accent — warm orange, complementary to the cool palette so it
-     stays visible on every section. Kept distinct from the reserved AOG amber
-     (#D9A65A) to avoid semantic confusion. Change this one value to recolour. */
-  --color-cursor: #fb7a34;
+  /* Custom-cursor fill — Ice Blue, with light and dark outlines in CustomCursor
+     for contrast across sections. Change this value to recolour. */
+  --color-cursor: #B7E3F3;
 
   /* Radius */
   --radius-sm: 10px;

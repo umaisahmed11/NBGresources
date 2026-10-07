@@ -73,10 +73,12 @@ export function CustomCursor() {
       style={{ willChange: "transform" }}
     >
       <div
-        className="flex items-center justify-center rounded-full border border-glacier/70 bg-glacier/10 text-[9px] font-medium uppercase tracking-[0.16em] text-ice backdrop-blur-sm transition-all duration-200"
+        className="flex items-center justify-center rounded-full border-2 border-white bg-cursor text-[9px] font-bold uppercase tracking-[0.12em] text-carbon transition-[width,height] duration-200"
         style={{
-          width: label ? 56 : hovering ? 20 : 10,
-          height: label ? 56 : hovering ? 20 : 10,
+          width: label ? 56 : hovering ? 24 : 14,
+          height: label ? 56 : hovering ? 24 : 14,
+          // Light and dark edges keep the cursor distinct on any surface.
+          boxShadow: "0 0 0 1px #080a0d, 0 2px 8px rgb(8 10 13 / 45%)",
         }}
       >
         {label}
