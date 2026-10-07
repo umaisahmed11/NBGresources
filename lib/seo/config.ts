@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { company } from "@/content/company";
 
-/** Base site URL — override via NEXT_PUBLIC_SITE_URL in production. */
-export const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://example.com";
+/** Canonical production domain for sharing metadata and search engines. */
+export const siteUrl = "https://nbgresources.com";
 
 /** Homepage title/description (spec §50). */
 export const defaultTitle = `${company.name} | Aircraft Parts, Global Sourcing & Procurement`;

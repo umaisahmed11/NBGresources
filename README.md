@@ -70,8 +70,7 @@ in `lib/server/submissions.ts` to email/CRM/messaging when the client approves.
 
 ## Deployment
 
-Compatible with Vercel. Set `NEXT_PUBLIC_SITE_URL` and any future integration
-secrets as environment variables. Note the local filesystem `uploads/`
+Compatible with Vercel. The canonical domain is `https://nbgresources.com`, configured in `lib/seo/config.ts` for sharing metadata, canonical links, structured data, and sitemaps. Rebuild and redeploy after changing it. Set future integration secrets as environment variables. Note the local filesystem `uploads/`
 directory is for development; use private object storage (signed URLs) in
 production (spec §56).
 
