@@ -8,10 +8,8 @@ import { AOGBanner } from "@/components/sections/AOGBanner";
 import { RFQCTA } from "@/components/sections/RFQCTA";
 import { SectionEyebrow, DisplayHeading } from "@/components/ui/Typography";
 import { TextLink } from "@/components/ui/Button";
-import { TechnicalImage } from "@/components/ui/TechnicalImage";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { whyUsPillars, verifiedMetrics } from "@/content/company";
-import { leadership } from "@/content/team";
 
 export default function HomePage() {
   return (
@@ -124,40 +122,6 @@ export default function HomePage() {
           </div>
         </Section>
       ) : null}
-
-      {/* Section 8 — Leadership Preview (light) */}
-      <Section theme="arctic">
-        <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-16">
-          <Reveal>
-            <SectionEyebrow>Leadership</SectionEyebrow>
-            <DisplayHeading className="mt-6 max-w-[14ch]">
-              Built on Long-Term Partnerships
-            </DisplayHeading>
-            <p className="mt-8 max-w-[480px] text-[17px] leading-relaxed text-steel sm:text-[18px]">
-              Our approach is simple: understand the requirement, find the right solution, communicate clearly, and build relationships that last.
-            </p>
-            <div className="mt-8">
-              <TextLink href="/team" accent={false}>
-                Meet the team
-              </TextLink>
-            </div>
-          </Reveal>
-          <Reveal delay={0.1}>
-            {/* Only 2–3 selected leadership images on the home page (spec §24 §8). */}
-            <div className="grid grid-cols-2 gap-4">
-              {leadership.slice(0, 2).map((member, i) => (
-                <TechnicalImage
-                  key={i}
-                  tone={i === 0 ? "titanium" : "carbon"}
-                  aspect="aspect-[3/4]"
-                  label="Leadership"
-                  caption="PORTRAIT / PLACEHOLDER"
-                />
-              ))}
-            </div>
-          </Reveal>
-        </div>
-      </Section>
 
       {/* Section 9 — AOG Feature (dark) */}
       <AOGBanner />

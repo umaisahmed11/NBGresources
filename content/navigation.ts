@@ -9,7 +9,6 @@ export type NavLink = {
 
 export const companyLinks: NavLink[] = [
   { label: "About", href: "/about" },
-  { label: "Leadership", href: "/team" },
   { label: "Careers", href: "/careers" },
 ];
 
@@ -50,7 +49,6 @@ export const capabilityLinks: NavLink[] = [
 export const footerNav = {
   company: [
     { label: "About", href: "/about" },
-    { label: "Leadership", href: "/team" },
     { label: "Careers", href: "/careers" },
   ],
   capabilities: [
