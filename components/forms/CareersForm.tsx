@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { TextField, TextArea, Honeypot } from "./fields";
 import { FileUpload } from "./FileUpload";
 import { PrimaryButton } from "@/components/ui/Button";
@@ -10,15 +10,18 @@ type Errors = Partial<Record<string, string>>;
 
 /** Careers / speculative application form (spec §34). */
 export function CareersForm() {
+  const sending = useRef(false);
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (sending.current || status === "submitting") return;
+    const element = e.currentTarget;
     setStatus("submitting");
     setErrors({});
 
-    const form = new FormData(e.currentTarget);
+    const form = new FormData(element);
     const payload = Object.fromEntries(
       Array.from(form.entries()).filter(([, v]) => typeof v === "string"),
     );
@@ -34,19 +37,24 @@ export function CareersForm() {
       return;
     }
 
+    sending.current = true;
     try {
       const res = await fetch("/api/careers", { method: "POST", body: form });
       if (!res.ok) throw new Error("Request failed");
+      const data = await res.json();
+      if (data.success !== true) throw new Error("Request failed");
       setStatus("success");
-      (e.target as HTMLFormElement).reset();
+      element.reset();
     } catch {
       setStatus("error");
+    } finally {
+      sending.current = false;
     }
   }
 
   if (status === "success") {
     return (
-      <div className="rounded-2xl border border-white/10 bg-titanium p-8">
+      <div role="status" className="rounded-2xl border border-white/10 bg-titanium p-8">
         <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-glacier">
           Application received
         </p>

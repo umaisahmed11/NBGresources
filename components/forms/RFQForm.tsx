@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { Plane, Cog, Package, FileText, Briefcase, CircleHelp } from "lucide-react";
@@ -78,16 +78,19 @@ const typeIcons: Record<RfqType, React.ReactNode> = {
 export function RFQForm() {
   const router = useRouter();
   const [rfqType, setRfqType] = useState<RfqType | null>(null);
+  const sending = useRef(false);
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (sending.current || status === "submitting") return;
+    const element = e.currentTarget;
     if (!rfqType) return;
     setStatus("submitting");
     setErrors({});
 
-    const form = new FormData(e.currentTarget);
+    const form = new FormData(element);
     const raw = Array.from(form.entries()).filter(([, v]) => typeof v === "string") as [string, string][];
 
     // Split into common fields + detail record.
@@ -111,15 +114,19 @@ export function RFQForm() {
       return;
     }
 
+    sending.current = true;
     try {
       form.append("rfqType", rfqType);
       form.append("detailsJson", JSON.stringify(details));
       const res = await fetch("/api/rfq", { method: "POST", body: form });
       if (!res.ok) throw new Error("Request failed");
-      const data = (await res.json()) as { reference: string };
+      const data = (await res.json()) as { success?: boolean; reference?: string };
+      if (data.success !== true || !data.reference) throw new Error("Request failed");
       router.push(`/thank-you?ref=${encodeURIComponent(data.reference)}&type=rfq`);
     } catch {
       setStatus("error");
+    } finally {
+      sending.current = false;
     }
   }
 

@@ -6,9 +6,9 @@ import { z } from "zod";
  */
 
 const requiredString = (label: string, min = 1) =>
-  z.string().trim().min(min, `${label} is required.`);
+  z.string().trim().min(min, `${label} is required.`).max(5000, "Use at most 5000 characters.");
 
-export const emailField = z.string().trim().email("Enter a valid email address.");
+export const emailField = z.string().trim().email("Enter a valid email address.").max(254);
 
 /* ----------------------------- Contact (spec §35) ----------------------------- */
 
@@ -60,7 +60,7 @@ export const rfqSchema = z.object({
   phone: z.string().trim().optional().or(z.literal("")),
   // Flexible requirement payload — fields differ per type on the client,
   // captured here as an open record so any type can submit.
-  details: z.record(z.string(), z.string().optional()).optional(),
+  details: z.record(z.string().max(100), z.string().max(5000).optional()).optional(),
   notes: z.string().trim().optional().or(z.literal("")),
   website: z.string().max(0).optional(),
 });

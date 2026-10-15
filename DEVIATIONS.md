@@ -84,22 +84,16 @@ General Sans). Manrope (display) and Inter (body) were chosen because both are i
 the recommended list and available via `next/font/google` (self-hosted, no extra
 dependency, good variable-font support).
 
-### A10. Backend delivery = structured logging (no email/CRM yet)
-Spec §54/§55 anticipate a real backend but explicitly allow a first deployment
-that forwards by email. No email/CRM credentials exist in this environment, so
-`deliverRecord` builds the full structured record (RFQ ID, type, contact,
-part/engine info, status, attachment metadata, AOG priority flag) and
-logs/appends it to a private `uploads/submissions.jsonl`.
-**To fix:** implement email/CRM/Slack/SMS in `lib/server/submissions.ts` once the
-client approves specific integrations (spec §55).
+### A10. Backend email delivery implemented
+All forms now use `lib/server/form-mail.ts` and the configured server-side SMTP
+environment. Success requires SMTP acceptance. RFQ/AOG references, submitted
+fields, and attachments are included in the email; AOG uses subject `AOG Enquiry`.
+CRM/Slack/SMS integrations are not implemented.
 
-### A11. File uploads stored on local filesystem; no virus scan
-Spec §56 asks for MIME/extension/size validation (implemented), safe generated
-filenames (implemented), private storage (implemented via gitignored
-`uploads/`), and virus scanning "if backend permits". No AV service is available
-here, so virus scanning is **not** implemented.
-**To fix:** use private object storage with signed URLs and an AV scan step in
-production.
+### A11. File uploads delivered by email; no virus scan
+Attachments are validated for extension, MIME and size and sent from memory.
+They are not retained in local storage. Virus scanning and an attachment archive
+are not implemented; add private storage and scanning if required.
 
 ### A12. Cookie-consent panel not implemented
 Spec §60 says a consent panel is needed **"if analytics or marketing cookies
@@ -164,5 +158,5 @@ must be replaced with confirmed data before production launch:
 | Navigation & footer | `content/navigation.ts` |
 | Design tokens | `app/globals.css` (`@theme`) |
 | Form validation | `lib/validation/schemas.ts` |
-| Submission handling / delivery | `lib/server/submissions.ts` |
+| Submission handling / delivery | `lib/server/form-mail.ts` |
 | SEO / structured data | `lib/seo/*` |

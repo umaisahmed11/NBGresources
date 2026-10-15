@@ -21,13 +21,15 @@ function compile(file, imports, globals = {}) {
   return exports;
 }
 
-function setup({ env = {}, fail = false, accepted = true } = {}) {
+function setup({ env = {}, fail = false, accepted = true, kind = 'contact' } = {}) {
   const calls = [];
   let transportOptions;
   let closed = false;
   const schema = compile('lib/validation/schemas.ts', {});
-  const route = compile('app/api/contact/route.ts', {
+  const mailer = compile('lib/server/form-mail.ts', {
+    'server-only': {},
     '@/lib/validation/schemas': schema,
+    '@/lib/utils': compile('lib/utils.ts', {}),
     nodemailer: { createTransport(options) {
       transportOptions = options;
       return {
@@ -43,6 +45,7 @@ function setup({ env = {}, fail = false, accepted = true } = {}) {
     SMTP_HOST: 'smtp.example.com', SMTP_PORT: '465', SMTP_SECURE: 'true',
     SMTP_USER: 'sender@example.com', SMTP_PASS: 'test-only', CONTACT_TO_EMAIL: 'team@example.com', ...env,
   } } });
+  const route = compile(`app/api/${kind}/route.ts`, { '@/lib/server/form-mail': mailer });
   return { post: route.POST, calls, options: () => transportOptions, closed: () => closed };
 }
 const valid = { name: '  Jane  ', email: 'jane@example.com', message: '  Hello  ' };
@@ -58,7 +61,7 @@ test('sends trimmed JSON fields using authenticated sender and visitor reply-to'
   assert.equal(api.calls[0].from.address, 'sender@example.com');
   assert.equal(api.calls[0].replyTo.address, valid.email);
   assert.equal(api.calls[0].subject, 'New website enquiry from Jane');
-  assert.match(api.calls[0].text, /Message:\nHello$/);
+  assert.match(api.calls[0].text, /Message: Hello$/);
   assert.equal(api.options().secure, true);
   assert.equal(api.closed(), true);
 });
@@ -136,3 +139,69 @@ test('STARTTLS is required when implicit TLS is disabled', async () => {
   assert.equal(api.options().requireTLS, true);
 });
 
+
+const formCases = {
+  contact: { ...valid },
+  rfq: { rfqType: 'Parts / Components', company: 'Example', contactName: 'Jane', email: valid.email,
+    details: { partNumber: 'PN-123', quantity: '2' }, notes: 'Need parts' },
+  aog: { company: 'Example', contactName: 'Jane', email: valid.email, phone: '+123456789',
+    partNumber: 'PN-URGENT', quantity: '1', deliveryAirport: 'JFK', requiredBy: 'ASAP' },
+  careers: { name: 'Jane', email: valid.email, role: 'Engineer', message: 'Application' },
+};
+
+for (const [kind, values] of Object.entries(formCases)) {
+  test(`${kind}: sends through SMTP and only succeeds after acceptance`, async () => {
+    const api = setup({ kind });
+    const response = await api.post(request(values));
+    assert.equal(response.status, 200);
+    const data = await response.json();
+    assert.equal(data.success, true);
+    assert.equal(api.calls[0].subject, kind === 'aog' ? 'AOG Enquiry' : 'New website enquiry from Jane');
+    assert.equal(api.calls[0].from.address, 'sender@example.com');
+    assert.equal(api.calls[0].to, 'team@example.com');
+    assert.equal(api.calls[0].replyTo.address, valid.email);
+    if (kind === 'rfq' || kind === 'aog') assert.match(data.reference, kind === 'aog' ? /^AOG-/ : /^RFQ-/);
+    if (kind === 'rfq') assert.match(api.calls[0].text, /Part Number: PN-123/);
+  });
+
+  test(`${kind}: delivery failure returns 500; invalid input and spam never send`, async () => {
+    const failure = setup({ kind, fail: true });
+    const response = await failure.post(request(values));
+    assert.equal(response.status, 500);
+    assert.equal((await response.json()).success, false);
+    for (const payload of [{ ...values, email: 'invalid' }, { ...values, website: 'spam' }]) {
+      const api = setup({ kind });
+      assert.equal((await api.post(request(payload))).status, 400);
+      assert.equal(api.calls.length, 0);
+    }
+  });
+
+  test(`${kind}: multipart attachments and all form fields are delivered`, async () => {
+    const api = setup({ kind });
+    const form = new FormData();
+    for (const [key, value] of Object.entries(values)) {
+      form.set(key === 'details' ? 'detailsJson' : key, typeof value === 'object' ? JSON.stringify(value) : value);
+    }
+    form.set(kind === 'careers' ? 'cv' : 'attachment', new File(['document'], 'details.txt', { type: 'text/plain' }));
+    const response = await api.post(new Request('http://localhost/api/' + kind, { method: 'POST', body: form }));
+    assert.equal(response.status, 200);
+    assert.equal(api.calls[0].attachments[0].content.toString(), 'document');
+    if (kind === 'rfq') assert.match(api.calls[0].text, /Part Number: PN-123/);
+    if (kind === 'careers') assert.match(api.calls[0].text, /Role: Engineer/);
+  });
+}
+
+test('Contact enquiries explicitly marked AOG also use the fixed subject', async () => {
+  const api = setup();
+  assert.equal((await api.post(request({ ...valid, inquiryType: 'AOG' }))).status, 200);
+  assert.equal(api.calls[0].subject, 'AOG Enquiry');
+});
+
+test('malformed RFQ detail JSON is rejected rather than silently discarded', async () => {
+  const api = setup({ kind: 'rfq' });
+  const form = new FormData();
+  form.set('detailsJson', '{');
+  const response = await api.post(new Request('http://localhost/api/rfq', { method: 'POST', body: form }));
+  assert.equal(response.status, 400);
+  assert.equal(api.calls.length, 0);
+});

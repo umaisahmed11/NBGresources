@@ -49,17 +49,18 @@ components/
   forms/             RFQ, AOG, Contact, Careers, Parts quick form + fields
   ui/                Typography, Button, TechnicalImage, Placeholder
 content/             Editable content data (company, services, team, careers, navigation)
-lib/                 utils, validation (Zod), seo, server (submissions)
+lib/                 utils, validation (Zod), seo, server (SMTP form delivery)
 ```
 
 ## Forms & Submissions
 
-RFQ, AOG, Contact and Careers forms are validated client-side (Zod) and
-re-validated server-side. Uploads are validated (extension, MIME, size), given a
-safe generated filename, and written to a **private, gitignored `uploads/`**
-directory. Each submission creates a structured record (spec §54/§55) that is
-currently logged/appended to `uploads/submissions.jsonl`. Wire `deliverRecord`
-in `lib/server/submissions.ts` to email/CRM/messaging when the client approves.
+RFQ (including Parts quick enquiries), AOG, Contact and Careers forms use the
+shared SMTP handler in `lib/server/form-mail.ts`. Inputs and attachments are
+validated server-side, then all submitted fields and attachments are emailed to
+`CONTACT_TO_EMAIL`. Attachments are handled in memory, without local storage.
+All forms use the same authenticated sender and visitor reply-to. AOG enquiries
+use the exact subject `AOG Enquiry`; other subjects are `New website enquiry from {name}`.
+Success requires SMTP acceptance. See [SMTP setup and verification](docs/contact-smtp.md).
 
 ## Accessibility & Performance
 
@@ -70,9 +71,7 @@ in `lib/server/submissions.ts` to email/CRM/messaging when the client approves.
 
 ## Deployment
 
-Compatible with Vercel. The canonical domain is `https://nbgresources.com`, configured in `lib/seo/config.ts` for sharing metadata, canonical links, structured data, and sitemaps. Rebuild and redeploy after changing it. Set future integration secrets as environment variables. Note the local filesystem `uploads/`
-directory is for development; use private object storage (signed URLs) in
-production (spec §56).
+The canonical domain is `https://nbgresources.com`, configured in `lib/seo/config.ts` for sharing metadata, canonical links, structured data, and sitemaps. Rebuild and redeploy after changing it. Configure the six SMTP environment variables in the running server process and use hosting that permits outbound SMTP. See `docs/contact-smtp.md`; attachments require no local storage.
 
 ### Runtime and quality checks
 

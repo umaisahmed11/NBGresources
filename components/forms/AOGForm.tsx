@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { TextField, TextArea, Honeypot } from "./fields";
 import { FileUpload } from "./FileUpload";
@@ -16,15 +16,18 @@ type Errors = Partial<Record<string, string>>;
  */
 export function AOGForm() {
   const router = useRouter();
+  const sending = useRef(false);
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (sending.current || status === "submitting") return;
+    const element = e.currentTarget;
     setStatus("submitting");
     setErrors({});
 
-    const form = new FormData(e.currentTarget);
+    const form = new FormData(element);
     const payload = Object.fromEntries(
       Array.from(form.entries()).filter(([, v]) => typeof v === "string"),
     );
@@ -41,13 +44,17 @@ export function AOGForm() {
       return;
     }
 
+    sending.current = true;
     try {
       const res = await fetch("/api/aog", { method: "POST", body: form });
       if (!res.ok) throw new Error("Request failed");
-      const data = (await res.json()) as { reference: string };
+      const data = (await res.json()) as { success?: boolean; reference?: string };
+      if (data.success !== true || !data.reference) throw new Error("Request failed");
       router.push(`/thank-you?ref=${encodeURIComponent(data.reference)}&type=aog`);
     } catch {
       setStatus("error");
+    } finally {
+      sending.current = false;
     }
   }
 
