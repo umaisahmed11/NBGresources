@@ -25,13 +25,13 @@ export const inquiryTypes = [
 ] as const;
 
 export const contactSchema = z.object({
-  name: requiredString("Name"),
-  email: emailField,
-  company: requiredString("Company"),
-  phone: z.string().trim().optional().or(z.literal("")),
-  subject: requiredString("Subject"),
-  inquiryType: z.enum(inquiryTypes).optional(),
-  message: requiredString("Message", 10),
+  name: requiredString("Name").max(100, "Use at most 100 characters."),
+  email: emailField.max(254, "Use at most 254 characters."),
+  company: z.string().trim().max(200).optional(),
+  phone: z.string().trim().max(50).optional(),
+  subject: z.string().trim().max(200).optional(),
+  inquiryType: z.enum(inquiryTypes).optional().or(z.literal("")),
+  message: requiredString("Message").max(5000, "Use at most 5000 characters."),
   // Honeypot: must remain empty (spec §72 spam protection).
   website: z.string().max(0).optional(),
 });

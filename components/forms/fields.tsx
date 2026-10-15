@@ -94,6 +94,7 @@ export function TextField({
         placeholder={placeholder}
         defaultValue={defaultValue}
         autoComplete={autoComplete}
+        required={required}
         aria-invalid={error ? true : undefined}
         aria-required={required}
         className={cn(baseInput, themeInput[theme])}
@@ -132,6 +133,7 @@ export function TextArea({
         id={id}
         name={name}
         rows={rows}
+        required={required}
         placeholder={placeholder}
         aria-invalid={error ? true : undefined}
         aria-required={required}
